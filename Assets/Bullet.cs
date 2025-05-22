@@ -35,7 +35,7 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other == null)
+        if (other == null || other.transform == null || shootLoc == null || shootLoc.transform == null)
         {
             Destroy(gameObject);
             return;

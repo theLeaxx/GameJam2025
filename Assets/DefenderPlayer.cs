@@ -64,7 +64,7 @@ public class DefenderPlayer : PlayerScriptBase
 
         while (isAnyCoroutineRunning)
         {
-            GameManager.Instance.DecreaseEnergy(15f);
+            GameManager.Instance.DecreaseEnergy(7.5f);
 
             yield return new WaitForSeconds(0.3f);
         }
@@ -73,7 +73,7 @@ public class DefenderPlayer : PlayerScriptBase
     private IEnumerator PushCircle()
     {
         canKnockback = false;
-        GameManager.Instance.DecreaseEnergy(50f);
+        GameManager.Instance.DecreaseEnergy(20f);
 
         knockbackCircle.SetActive(true);
         List<NavMeshAgent> list = new List<NavMeshAgent>();
@@ -98,6 +98,9 @@ public class DefenderPlayer : PlayerScriptBase
                         agent.enabled = false;
                         list.Add(agent);
                     }
+
+                    if (collider.gameObject.TryGetComponent(out BasicEnemy enemy))
+                        enemy.TakeDamage(5f);
                 }
             }
 

@@ -113,7 +113,7 @@ public class RoomManager : MonoBehaviour
 
         yield return new WaitForEndOfFrame();
         Room room = spawnedRooms.Find(r => r.roomID == roomID);
-        //room.EnableEnemies();
+        room.EnableEnemies();
 
         yield return null;
     }

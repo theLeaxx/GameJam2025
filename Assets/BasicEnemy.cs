@@ -9,6 +9,7 @@ public class BasicEnemy : MonoBehaviour
 
     public bool canAttack = true;
     public bool canMove = true;
+    private bool dead = false;
 
     public void Initialize()
     {
@@ -51,6 +52,9 @@ public class BasicEnemy : MonoBehaviour
 
     public void TakeDamage(float dmg)
     {
+        if (dead)
+            return;
+
         health -= dmg;
         if (health <= 0)
         {
@@ -70,6 +74,7 @@ public class BasicEnemy : MonoBehaviour
 
     public void Die()
     {
+        dead = true;
         GetComponentInParent<Room>().EnemyDeath();
         canAttack = false;
         canMove = false;
