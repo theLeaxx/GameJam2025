@@ -41,7 +41,7 @@ public class RoomManager : MonoBehaviour
     void Update()
     {
 #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.Alpha2))
             ResetPlayersPositions();
 #endif
     }

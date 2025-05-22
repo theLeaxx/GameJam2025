@@ -1,6 +1,7 @@
 using NavMeshPlus.Components;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -53,6 +54,12 @@ public class GameManager : MonoBehaviour
         UpdateEnergyVisual();
     }
 
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SaveLoad.Instance.LoadGame();
+    }
+
     private void Update()
     {
         IncreaseEnergy(Time.deltaTime * 0.001f);
@@ -87,12 +94,18 @@ public class GameManager : MonoBehaviour
         TotalUsedEnergy -= amount;
     }
 
-    public GameObject GetRandomTargetForEnemy()
+    public GameObject GetRandomTargetForEnemy(float chanceForDefender = -1)
     {
         float randomValue = Random.Range(0f, 1f);
-        if (randomValue < 0.45f)
+        if(chanceForDefender != -1)
+            if (Random.Range(0f, 1) < chanceForDefender)
+                return Defender;
+            else
+                return Striker;
+
+        if(randomValue < 0.45f)
             return Striker;
-        else
+        else 
             return Defender;
     }
 }

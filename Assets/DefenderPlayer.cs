@@ -20,10 +20,18 @@ public class DefenderPlayer : PlayerScriptBase
     [SerializeField]
     private GameObject knockbackCircle;
 
+    private KeyCode knockbackCircleToggle;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         SetVariables();
+
+        knockbackCircleToggle = KeyCode.RightControl;
+
+#if UNITY_EDITOR
+        knockbackCircleToggle = KeyCode.Alpha1;
+#endif
     }
 
     // Update is called once per frame
@@ -40,7 +48,7 @@ public class DefenderPlayer : PlayerScriptBase
             HideForceField();
         }
 
-        if (Input.GetKeyDown(KeyCode.RightControl) && canKnockback)
+        if (Input.GetKeyDown(knockbackCircleToggle) && canKnockback)
         {
             StartCoroutine(PushCircle());
         }
@@ -64,7 +72,24 @@ public class DefenderPlayer : PlayerScriptBase
 
         while (isAnyCoroutineRunning)
         {
-            GameManager.Instance.DecreaseEnergy(7.5f);
+            GameManager.Instance.DecreaseEnergy(6.5f);
+
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 2.3f);
+
+            foreach (Collider2D collider in colliders)
+            {
+                Rigidbody2D rb = collider.GetComponent<Rigidbody2D>();
+
+                if (rb != null)
+                {
+                    if (collider.gameObject.TryGetComponent(out BasicEnemy enemy))
+                        enemy.TakeDamage(1f);
+
+                    if (collider.gameObject.TryGetComponent(out PlayerScriptBase player))
+                        player.TakeDamage(1f);
+                }
+            }
+
 
             yield return new WaitForSeconds(0.3f);
         }

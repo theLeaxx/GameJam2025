@@ -12,11 +12,22 @@ public class SentryEnemy : BasicEnemy
     [SerializeField]
     private GameObject bulletPrefab;
 
+    [SerializeField]
+    private float minDelayBetweenShots;
+    [SerializeField]
+    private float maxDelayBetweenShots;
+
+    [SerializeField]
+    private float minDelayBetweenWarningAndShot;
+    [SerializeField]
+    private float maxDelayBetweenWarningAndShot;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Initialize();
-        agent.enabled = false;
+        if(agent != null)
+            agent.enabled = false;
         StartCoroutine(SentryLogic());
     }
 
@@ -46,38 +57,46 @@ public class SentryEnemy : BasicEnemy
     {
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(1f, 2.5f));
+            if (!CanReachTarget() || !IsPathClear())
+            {
+                yield return new WaitForEndOfFrame();
+                continue;        
+            }
 
-            if (Vector2.Distance(transform.position, target.transform.position) > 30f)
+            if (!IsPathClear() && canMove)
+            {
+                StartCoroutine(RandomMove(transform));
+                yield return new WaitForSeconds(3f);
+            }
+
+            yield return new WaitForSeconds(Random.Range(minDelayBetweenWarningAndShot, maxDelayBetweenWarningAndShot));
+
+            if (Vector2.Distance(transform.position, target.transform.position) > 30f && canMove)
             {
                 StartCoroutine(RandomMove(false));
                 yield return new WaitForSeconds(2f);
                 continue;
             }
 
-            bool isPathClear = true;
-
-            while (!isPathClear)
-            {
-                Vector2 direction = (target.transform.position - transform.position).normalized;
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, 30f, LayerMask.GetMask("Obstacle"));
-
-                if (hit.collider == null || hit == false)
-                    isPathClear = true;
-
-                if(!isPathClear)
-                    StartCoroutine(RandomMove(transform));
-
-                yield return new WaitForSeconds(3f);
-            }
-
             ShowFutureShot();
 
-            yield return new WaitForSeconds(Random.Range(1.5f, 2.5f));
+            yield return new WaitForSeconds(Random.Range(minDelayBetweenShots, maxDelayBetweenShots));
             Shoot();
 
-            StartCoroutine(RandomMove(true));
+            if(canMove)
+                StartCoroutine(RandomMove(true));
         }
+    }
+
+    private bool IsPathClear()
+    {
+        Vector2 direction = (target.transform.position - transform.position).normalized;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, 30f, LayerMask.GetMask("Obstacle"));
+
+        if (hit.collider == null || hit == false)
+            return true;
+
+        return false;
     }
 
     private IEnumerator RandomMove(bool targetChange)

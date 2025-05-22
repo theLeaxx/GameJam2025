@@ -11,25 +11,29 @@ public class BasicEnemy : MonoBehaviour
     public bool canMove = true;
     private bool dead = false;
 
+    public float chanceForDefender = -1;
+
     public void Initialize()
     {
-        if (canMove)
-        {
-            agent = GetComponent<NavMeshAgent>();
-            agent.updateRotation = false;
-            agent.updateUpAxis = false;
-            agent.isStopped = true;
-        }
+        agent = GetComponent<NavMeshAgent>();
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
+        agent.isStopped = true;
 
         ChangeTarget();
     }
 
     public void ChangeTarget(GameObject _target = null)
     {
-        if(_target != null)
+        if (_target != null)
             target = _target;
         else
-            target = GameManager.Instance.GetRandomTargetForEnemy();
+        {
+            if (chanceForDefender != -1)
+                target = GameManager.Instance.GetRandomTargetForEnemy(chanceForDefender);
+            else
+                target = GameManager.Instance.GetRandomTargetForEnemy();
+        }
     }
 
     public void SetDestination()

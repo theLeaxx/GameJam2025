@@ -73,7 +73,7 @@ public class StrikerPlayer : PlayerScriptBase
         {
             if (GameManager.Instance.EnergyLevel > 0)
             {
-                GameManager.Instance.DecreaseEnergy(Random.Range(2.5f, 10.5f));
+                GameManager.Instance.DecreaseEnergy(Random.Range(1.5f, 3.5f));
 
                 var bullet = Instantiate(bulletPrefab, forwardPlayer.position, forwardPlayer.rotation);
                 bullet.GetComponent<Bullet>().Shoot(forwardPlayer, forwardPlayer, 10f, Random.Range(2, 10));

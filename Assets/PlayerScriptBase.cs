@@ -25,9 +25,15 @@ public class PlayerScriptBase : MonoBehaviour
         {
             health = 0f;
             Debug.Log($"{gameObject.name} is dead");
+            Die();
         }
 
         healthUI.fillAmount = health / 100f;
+    }
+
+    private void Die()
+    {
+        GameManager.Instance.Restart();
     }
 
     public void SetHealth(float value)
