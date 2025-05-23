@@ -45,6 +45,7 @@ public class SaveLoad : MonoBehaviour
         Debug.Log("Game Saved");
 
         PlayerPrefs.SetString("checkpoint", RoomManager.Instance.currentRoomID);
+        PlayerPrefs.SetString("lastCheckpoint", RoomManager.Instance.lastRoomID);
         PlayerPrefs.SetFloat("strikerHealth", FindAnyObjectByType<StrikerPlayer>().health);
         PlayerPrefs.SetFloat("defenderHealth", FindAnyObjectByType<DefenderPlayer>().health);
         PlayerPrefs.SetFloat("currentEnergy", GameManager.Instance.EnergyLevel);
@@ -65,12 +66,14 @@ public class SaveLoad : MonoBehaviour
             return;
         }
 
+        string lastCheckpoint = PlayerPrefs.GetString("lastCheckpoint");
         float strikerHealth = PlayerPrefs.GetFloat("strikerHealth");
         float defenderHealth = PlayerPrefs.GetFloat("defenderHealth");
         float currentEnergy = PlayerPrefs.GetFloat("currentEnergy");
         float totalUsedEnergy = PlayerPrefs.GetFloat("totalUsedEnergy");
 
         RoomManager.Instance.TransitionToNextRoom(checkpoint);
+        RoomManager.Instance.lastRoomID = lastCheckpoint;
         FindAnyObjectByType<StrikerPlayer>().SetHealth(strikerHealth);
         FindAnyObjectByType<DefenderPlayer>().SetHealth(defenderHealth);
         GameManager.Instance.SetEnergy(currentEnergy);
@@ -80,6 +83,7 @@ public class SaveLoad : MonoBehaviour
     public void DeleteSave()
     {
         PlayerPrefs.DeleteKey("checkpoint");
+        PlayerPrefs.DeleteKey("lastCheckpoint");
         PlayerPrefs.DeleteKey("strikerHealth");
         PlayerPrefs.DeleteKey("defenderHealth");
         PlayerPrefs.DeleteKey("currentEnergy");

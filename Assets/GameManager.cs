@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
     public void UpdateCurrentNavMesh()
     {
         var navMeshSurface = FindAnyObjectByType<NavMeshSurface>();
-        navMeshSurface.BuildNavMesh();
+        navMeshSurface?.BuildNavMesh();
     }
 
     public void SetEnergy(float value)

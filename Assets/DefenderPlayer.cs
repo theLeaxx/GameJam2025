@@ -37,28 +37,28 @@ public class DefenderPlayer : PlayerScriptBase
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.RightShift))
+        if (Input.GetKeyDown(KeyCode.RightShift) && !PauseManager.Instance.isPaused)
         {
             isAnyCoroutineRunning = true;
             StartCoroutine(ShowForceField());
         }
 
-        if (Input.GetKeyUp(KeyCode.RightShift))
+        if (Input.GetKeyUp(KeyCode.RightShift) && !PauseManager.Instance.isPaused)
         {
             HideForceField();
         }
 
-        if (Input.GetKeyDown(knockbackCircleToggle) && canKnockback)
+        if (Input.GetKeyDown(knockbackCircleToggle) && canKnockback && !PauseManager.Instance.isPaused)
         {
             StartCoroutine(PushCircle());
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftAlt))
+        if (Input.GetKeyDown(KeyCode.LeftAlt) && !PauseManager.Instance.isPaused)
         {
             TransformEnergyInHealth();
         }
 
-        if (Input.GetKeyDown(KeyCode.RightAlt))
+        if (Input.GetKeyDown(KeyCode.RightAlt) && !PauseManager.Instance.isPaused)
         {
             TransformHealthInEnergy();
         }

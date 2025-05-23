@@ -36,6 +36,16 @@ public class BasicEnemy : MonoBehaviour
         }
     }
 
+    public void SwitchTarget()
+    {
+        if(target == GameManager.Instance.Defender)
+            target = GameManager.Instance.Striker;
+        else if (target == GameManager.Instance.Striker)
+            target = GameManager.Instance.Defender;
+        else
+            ChangeTarget();
+    }
+
     public void SetDestination()
     {
         if (target != null)

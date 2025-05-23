@@ -15,6 +15,7 @@ public class RoomManager : MonoBehaviour
     private List<Room> spawnedRooms = new List<Room>();
 
     public string currentRoomID;
+    public string lastRoomID = "0";
 
     private void Awake()
     {
@@ -64,6 +65,9 @@ public class RoomManager : MonoBehaviour
                 break;
             }
         }
+
+        foreach(var bullet in FindObjectsByType<Bullet>(FindObjectsSortMode.None))
+            Destroy(bullet.gameObject);
     }
 
     private void UnloadRoom(string roomID)
@@ -96,13 +100,18 @@ public class RoomManager : MonoBehaviour
         return true;
     }
 
-    private IEnumerator TransitionToNextRoomCoroutine(string roomID)
+    private IEnumerator TransitionToNextRoomCoroutine(string roomID, string last = "")
     {
         Fade(1f, 0.5f, 1f);
         yield return new WaitForSeconds(1f);
 
         LoadRoom(roomID);
         UnloadRoom(currentRoomID);
+
+        lastRoomID = currentRoomID;
+
+        if(!string.IsNullOrEmpty(last))
+            lastRoomID = last;
 
         currentRoomID = roomID;
         ResetPlayersPositions();
@@ -113,9 +122,27 @@ public class RoomManager : MonoBehaviour
 
         yield return new WaitForEndOfFrame();
         Room room = spawnedRooms.Find(r => r.roomID == roomID);
-        room.EnableEnemies();
+        room?.EnableEnemies();
 
         yield return null;
+    }
+
+    public void LoadLevel0ForNewGame()
+    {
+        StartCoroutine(LoadLevel0());
+    }
+
+    private IEnumerator LoadLevel0()
+    {
+        LoadRoom("0");
+        currentRoomID = "0";
+
+        GameManager.Instance.UpdateCurrentNavMesh();
+        SaveLoad.Instance.SaveGame();
+
+        yield return new WaitForEndOfFrame();
+        Room room = spawnedRooms.Find(r => r.roomID == "0");
+        room.EnableEnemies();
     }
 
     private void ResetPlayersPositions()

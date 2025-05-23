@@ -3,8 +3,7 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    [SerializeField]
-    private string nextRoomID;
+    public string nextRoomID;
 
     private string doorID;
     public bool canUseDoor = false;
@@ -19,7 +18,7 @@ public class Door : MonoBehaviour
     private void Awake()
     {
         if(isEntranceDoor)
-            doorCounterText.gameObject.SetActive(false);
+            doorCounterText?.gameObject.SetActive(false);
     }
 
     public void UpdateCounter(int total, int left)

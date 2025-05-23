@@ -22,29 +22,29 @@ public class StrikerPlayer : PlayerScriptBase
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.LeftControl) && !PauseManager.Instance.isPaused)
         {
             isAnyCoroutineRunning = true;
             StartCoroutine(FireAbility());
         }
 
-        if (Input.GetKeyUp(KeyCode.LeftControl))
+        if (Input.GetKeyUp(KeyCode.LeftControl) && !PauseManager.Instance.isPaused)
         {
             isAnyCoroutineRunning = false;
             StopCoroutine(FireAbility());
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && (Input.GetAxis(HorizontalAxis) != 0 || Input.GetAxis(VerticalAxis) != 0) && !PauseManager.Instance.isPaused)
         {
             StartCoroutine(DashCooldown());
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftAlt))
+        if (Input.GetKeyDown(KeyCode.LeftAlt) && !PauseManager.Instance.isPaused)
         {
             TransformEnergyInHealth();
         }
 
-        if (Input.GetKeyDown(KeyCode.RightAlt))
+        if (Input.GetKeyDown(KeyCode.RightAlt) && !PauseManager.Instance.isPaused)
         {
             TransformHealthInEnergy();
         }

@@ -330,6 +330,8 @@ MonoBehaviour:
   - {fileID: 1758120776248246462}
   enemies: []
   enemiesToSpawn: []
+  timeMinBetweenEnemies: 2
+  timeMaxBetweenEnemies: 8
 --- !u!1 &1265010891739676766
 GameObject:
   m_ObjectHideFlags: 0
@@ -10769,7 +10771,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88502328a67d89a4a9cac5773264fc04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nextRoomID: 2
+  nextRoomID: Corridor2Doors_0-1AB-2
   canUseDoor: 0
   isEntranceDoor: 0
   doorCounterText: {fileID: 1163021285374652215}

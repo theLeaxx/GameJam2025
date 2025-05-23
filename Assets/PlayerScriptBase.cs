@@ -17,6 +17,7 @@ public class PlayerScriptBase : MonoBehaviour
     public float health { get; private set; } = 100f;
 
     private Image healthUI;
+    private Vector2 forcedMovement;
 
     public void TakeDamage(float dmg)
     {
@@ -86,12 +87,28 @@ public class PlayerScriptBase : MonoBehaviour
         healthUI = transform.Find("Health/Color").GetComponent<Image>();
     }
 
+    public void ForceAddMovement(Vector2 movement)
+    {
+        if(forcedMovement != Vector2.zero)
+            forcedMovement += movement;
+        else
+            forcedMovement = movement;
+    }
+
+    public void RemoveForcedMovement()
+    {
+        forcedMovement = Vector2.zero;
+    }
+
     public void MoveLogic()
     {
         float moveHorizontal = Input.GetAxis(HorizontalAxis);
         float moveVertical = Input.GetAxis(VerticalAxis);
 
         movement = new Vector2(moveHorizontal, moveVertical);
+
+        if (forcedMovement != Vector2.zero)
+            movement += forcedMovement;
 
         var toApply = movement * _moveSpeed;
 
