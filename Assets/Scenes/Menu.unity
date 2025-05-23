@@ -4228,6 +4228,7 @@ GameObject:
   - component: {fileID: 1135900282}
   - component: {fileID: 1135900281}
   - component: {fileID: 1135900280}
+  - component: {fileID: 1135900283}
   m_Layer: 0
   m_Name: MenuManager
   m_TagString: Untagged
@@ -4250,9 +4251,6 @@ MonoBehaviour:
   mainMenuUI: {fileID: 1409280201}
   optionsMenuUI: {fileID: 583474825}
   creditsMenuUI: {fileID: 227871016}
-  masterVolumeSlider: {fileID: 1567139471}
-  musicVolumeSlider: {fileID: 1199484182}
-  vsyncToggle: {fileID: 40237424}
 --- !u!114 &1135900281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4280,6 +4278,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1135900283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1135900279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66002039b203ee04092de889b80c8520, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  masterVolumeSlider: {fileID: 1567139471}
+  musicVolumeSlider: {fileID: 1199484182}
+  vsyncToggle: {fileID: 40237424}
 --- !u!1 &1197490614
 GameObject:
   m_ObjectHideFlags: 0
