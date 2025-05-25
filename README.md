@@ -1,5 +1,1 @@
-- pentru level 1B, adaduga un desen cu cavalerul folosind cercul rosu si blocuri dispaarund pe langa el !
-- adauga posibilitatea sa tragi in directia in care mergi nu doar in dreapta !!
-- holuri dupa 2-3 nivele si inainte de boss !
-- nou inamic, foarte lent, higher-hp, are un fel de raza de atatc ridicata, si daca esti in ia primesti damage constant, urmareste doar pe cel mai aproape player de el, nu se opreste niciodata, are masa(greutate) ridicata, counter: gloante, forcefield, knockback shield !!
-- boss 1: arena, attack (similar cu sentry dar mai putin timp de reactie + instant (nu e cu gloante), un cerc care da damage si are o singura gaura prin care poti intra inauntru sa il eviti, dar doar striker-ul poate intra cu dash, faza vulnerabila unde doar sta, poate spawna inamici simpli, se misca, se poate teleporta daca primeste mult dmg in <= 5sec, ..., iti ofera o noua abilitate) !!!
+
