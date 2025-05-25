@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 7502298915522426570}
   - component: {fileID: 9163394611734389568}
   - component: {fileID: 367442586813016090}
-  m_Layer: 5
+  - component: {fileID: 883575809426036079}
+  m_Layer: 3
   m_Name: BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,6 +76,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &883575809426036079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1428165167453706966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 0.5, y: -0.5}
+  m_UseGraphicAlpha: 0
 --- !u!1 &2248306760320797529
 GameObject:
   m_ObjectHideFlags: 0
@@ -87,7 +103,7 @@ GameObject:
   - component: {fileID: 8709108329019651744}
   - component: {fileID: 8267115163456555657}
   - component: {fileID: 3778031859981077102}
-  m_Layer: 5
+  m_Layer: 3
   m_Name: Health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +117,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2248306760320797529}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.01851852, y: 0.01851852, z: 0.01851852}
   m_ConstrainProportionsScale: 0
@@ -136,7 +152,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 32767
   m_TargetDisplay: 0
 --- !u!114 &8267115163456555657
 MonoBehaviour:
@@ -189,7 +205,7 @@ GameObject:
   - component: {fileID: 6376783164457490029}
   - component: {fileID: 5956571888671110125}
   - component: {fileID: 6923196344620735860}
-  m_Layer: 5
+  m_Layer: 3
   m_Name: Color
   m_TagString: Untagged
   m_Icon: {fileID: 0}

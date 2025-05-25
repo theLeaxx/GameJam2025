@@ -14,11 +14,6 @@ public class SaveLoad : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
         }
     }
 
@@ -50,6 +45,7 @@ public class SaveLoad : MonoBehaviour
         PlayerPrefs.SetFloat("defenderHealth", FindAnyObjectByType<DefenderPlayer>().health);
         PlayerPrefs.SetFloat("currentEnergy", GameManager.Instance.EnergyLevel);
         PlayerPrefs.SetFloat("totalUsedEnergy", GameManager.Instance.TotalUsedEnergy);
+        PlayerPrefs.SetInt("didLevel1variant", GameManager.Instance.didLevel1variant ? 1 : 0);
 
         PlayerPrefs.Save();
     }
@@ -71,13 +67,15 @@ public class SaveLoad : MonoBehaviour
         float defenderHealth = PlayerPrefs.GetFloat("defenderHealth");
         float currentEnergy = PlayerPrefs.GetFloat("currentEnergy");
         float totalUsedEnergy = PlayerPrefs.GetFloat("totalUsedEnergy");
+        bool didLevel1variant = PlayerPrefs.GetInt("didLevel1variant", 0) == 1;
 
-        RoomManager.Instance.TransitionToNextRoom(checkpoint);
+        RoomManager.Instance.TransitionToNextRoom(checkpoint, true);
         RoomManager.Instance.lastRoomID = lastCheckpoint;
         FindAnyObjectByType<StrikerPlayer>().SetHealth(strikerHealth);
         FindAnyObjectByType<DefenderPlayer>().SetHealth(defenderHealth);
         GameManager.Instance.SetEnergy(currentEnergy);
         GameManager.Instance.TotalUsedEnergy = totalUsedEnergy;
+        GameManager.Instance.DidLevel1Variant(true, didLevel1variant);
     }
 
     public void DeleteSave()
@@ -88,6 +86,7 @@ public class SaveLoad : MonoBehaviour
         PlayerPrefs.DeleteKey("defenderHealth");
         PlayerPrefs.DeleteKey("currentEnergy");
         PlayerPrefs.DeleteKey("totalUsedEnergy");
+        PlayerPrefs.DeleteKey("didLevel1variant");
 
         PlayerPrefs.Save();
 

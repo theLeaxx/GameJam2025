@@ -1,10 +1,10 @@
 using UnityEngine;
 using System.Collections;
 using Unity.Burst;
-using UnityEditor.Build.Reporting;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.InputSystem.UI;
 
 public class Room : MonoBehaviour
 {
@@ -16,28 +16,32 @@ public class Room : MonoBehaviour
     public Door[] doors;
     public List<BasicEnemy> enemies = new List<BasicEnemy>();
     public List<BasicEnemy> enemiesToSpawn = new List<BasicEnemy>();
+    private List<Transform> energyPickupLocs = new List<Transform>();
 
     [SerializeField]
     private float timeMinBetweenEnemies = 2f;
     [SerializeField]
     private float timeMaxBetweenEnemies = 8f;
 
+    [SerializeField]
+    private bool isBossBattle;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         if (roomID.Contains("Corridor"))
         {
-            if (RoomManager.Instance.lastRoomID == GetEntranceDoor().nextRoomID)
+            if ((GameManager.Instance.didLevel1variant && roomID.Contains("0-1AB-2")))
             {
-                GetDoorNextLevel().canUseDoor = false;
-                GetDoorVariantA().canUseDoor = true;
-                GetDoorVariantB().canUseDoor = true;
+                GetDoorNextLevel().Unlock();
+                GetDoorVariantA().Lock();
+                GetDoorVariantB().Lock();
             }
-            else if(RoomManager.Instance.lastRoomID == GetDoorVariantA().nextRoomID || RoomManager.Instance.lastRoomID == GetDoorVariantB().nextRoomID)
+            else if((!GameManager.Instance.didLevel1variant && roomID.Contains("0-1AB-2")))
             {
-                GetDoorNextLevel().canUseDoor = true;
-                GetDoorVariantA().canUseDoor = false;
-                GetDoorVariantB().canUseDoor = false;
+                GetDoorNextLevel().Lock();
+                GetDoorVariantA().Unlock();
+                GetDoorVariantB().Unlock();
             }
 
             return;
@@ -50,18 +54,58 @@ public class Room : MonoBehaviour
 
         enemiesToSpawn = enemies?.Where(enemy => enemy.gameObject.activeSelf == false).ToList();
 
+        energyPickupLocs = transform.Find("EnergyPickupLocs")?.GetComponentsInChildren<Transform>(true).ToList();
+
         UpdateDoors();
     }
 
     public void StartEnemies(float minDelay, float maxDelay)
     {
-        StartCoroutine(SpawnEnemies(minDelay, maxDelay)); 
+        StartCoroutine(SpawnEnemies(minDelay, maxDelay));
+        StartCoroutine(SpawnEnergyPickups());
     }
     
     public void EnableEnemies()
     {
         transform.Find("Enemies")?.gameObject.SetActive(true);
         StartEnemies(timeMinBetweenEnemies, timeMaxBetweenEnemies);
+    }
+
+    public void SpawnEnergyPickup(Transform transform = null)
+    {
+        if (transform == null)
+            transform = energyPickupLocs[0];
+
+        Instantiate(GameManager.Instance.energyPickupPrefab, transform.position, Quaternion.identity);
+    }
+
+    private IEnumerator SpawnEnergyPickups()
+    {
+        if(energyPickupLocs == null || energyPickupLocs.Count == 0)
+        {
+            Debug.LogWarning("No energy pickup locations found in the room.");
+            yield break;
+        }
+
+        if(isBossBattle)
+        {
+            yield return new WaitForSeconds(Random.Range(5, 10));
+            SpawnEnergyPickup();
+            yield break;
+        }
+
+        yield return new WaitForSeconds(Random.Range(12, 25));
+
+        int chanceToSpawn = Random.Range(0, 100);
+
+        if (chanceToSpawn > 55)
+        {
+            int randomIndex = Random.Range(0, energyPickupLocs.Count);
+            Transform randomTransform = energyPickupLocs[randomIndex];
+            SpawnEnergyPickup(randomTransform);
+        }
+
+        yield return new WaitForEndOfFrame();
     }
 
     private IEnumerator SpawnEnemies(float minDelay, float maxDelay)

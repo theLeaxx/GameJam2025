@@ -16,7 +16,7 @@ public class ChangeTargetIfInRange : MonoBehaviour
         if (other.gameObject == GameManager.Instance.Defender || other.gameObject == GameManager.Instance.Striker)
         {
             var script = GetComponentInParent<BasicEnemy>();
-            script.ChangeTarget();
+            script?.ChangeTarget();
         }
     }
 

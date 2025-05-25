@@ -8,9 +8,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1663184961751883018, guid: d9a910301f416c749a7708ec90a90716, type: 3}
+      propertyPath: nextRoomID
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4915767130045592275, guid: d9a910301f416c749a7708ec90a90716, type: 3}
       propertyPath: m_Name
       value: Corridor2Doors_2-3AB-4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890250456093341790, guid: d9a910301f416c749a7708ec90a90716, type: 3}
+      propertyPath: canUseDoor
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5890250456093341790, guid: d9a910301f416c749a7708ec90a90716, type: 3}
+      propertyPath: nextRoomID
+      value: 3A
+      objectReference: {fileID: 0}
+    - target: {fileID: 6777599406086991191, guid: d9a910301f416c749a7708ec90a90716, type: 3}
+      propertyPath: nextRoomID
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845555085160369766, guid: d9a910301f416c749a7708ec90a90716, type: 3}
+      propertyPath: canUseDoor
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845555085160369766, guid: d9a910301f416c749a7708ec90a90716, type: 3}
+      propertyPath: nextRoomID
+      value: 3B
       objectReference: {fileID: 0}
     - target: {fileID: 7735462884552402530, guid: d9a910301f416c749a7708ec90a90716, type: 3}
       propertyPath: canUseDoor

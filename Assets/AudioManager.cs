@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
@@ -28,13 +29,9 @@ public class AudioManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        UpdateVolume();
+        SettingsManager.Instance.SaveOptions();
         StartCoroutine(PlayRandomSongExceptCurrentOne());
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     IEnumerator PlayRandomSongExceptCurrentOne()
@@ -50,16 +47,42 @@ public class AudioManager : MonoBehaviour
         }
 
         AudioClip newClip = null;
-        while (newClip == null || newClip == currentClip)
+        while ((newClip == null || newClip == currentClip) && roomClips.Length > 1)
             newClip = roomClips[Random.Range(0, roomClips.Length)];
 
         musicSource.clip = newClip;
         musicSource.Play();
+        UpdateVolume();
         yield return new WaitForSeconds(newClip.length);
+        StartCoroutine(PlayRandomSongExceptCurrentOne());
+    }
+
+    public void BossTime()
+    {
+        StartCoroutine(BossTimeIE());
+        StopCoroutine(PlayRandomSongExceptCurrentOne());
+    }
+
+    private IEnumerator BossTimeIE()
+    {
+        float fadeDuration = 1f;
+        float startVolume = musicSource.volume;
+        for (float t = 0; t < fadeDuration; t += Time.deltaTime)
+        {
+            musicSource.volume = Mathf.Lerp(startVolume, 0f, t / fadeDuration);
+            yield return null;
+        }
+
+        musicSource.Stop();
+        musicSource.volume = startVolume;
+        musicSource.clip = bossClips[0];
+        musicSource.Play();
+        musicSource.loop = true;
     }
 
     public void UpdateVolume()
     {
         musicVolume = PlayerPrefs.GetFloat("MusicVolume", 100f) / 100f;
+        musicSource.volume = musicVolume;
     }
 }

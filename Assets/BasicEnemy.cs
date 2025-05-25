@@ -15,6 +15,9 @@ public class BasicEnemy : MonoBehaviour
 
     public void Initialize()
     {
+        if (!GetComponent<NavMeshAgent>())
+            return;
+
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
@@ -69,6 +72,8 @@ public class BasicEnemy : MonoBehaviour
         if (dead)
             return;
 
+        OnDamageActions(dmg);
+
         health -= dmg;
         if (health <= 0)
         {
@@ -76,6 +81,8 @@ public class BasicEnemy : MonoBehaviour
             Die();
         }
     }
+
+    public virtual void OnDamageActions(float dmg) { }
 
     public void Heal(float heal)
     {
@@ -86,6 +93,8 @@ public class BasicEnemy : MonoBehaviour
         }
     }
 
+    public virtual void DieActions() { }
+
     public void Die()
     {
         dead = true;
@@ -93,7 +102,20 @@ public class BasicEnemy : MonoBehaviour
         canAttack = false;
         canMove = false;
 
+        DieActions();
+
         Destroy(gameObject);
+    }
+
+    public GameObject CloserTarget()
+    {
+        float distanceToStriker = Vector2.Distance(transform.position, GameManager.Instance.Striker.transform.position);
+        float distanceToDefender = Vector2.Distance(transform.position, GameManager.Instance.Defender.transform.position);
+
+        if (distanceToStriker < distanceToDefender)
+            return GameManager.Instance.Striker;
+        else
+            return GameManager.Instance.Defender;
     }
 
     public bool CanReachTarget()
@@ -103,6 +125,9 @@ public class BasicEnemy : MonoBehaviour
 
         if (gameObject.activeSelf && !agent.isActiveAndEnabled)
             agent.enabled = true;
+
+        if(Vector2.Distance(transform.position, CloserTarget().transform.position) > 15f)
+            return false;
 
         NavMeshPath path = new();
         bool isPathValid = agent.CalculatePath(target.transform.position, path);

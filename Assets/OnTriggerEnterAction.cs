@@ -35,5 +35,10 @@ public class OnTriggerEnterAction : MonoBehaviour
     {
         Destroy(this);
     }
+
+    public void DestroyGameObject()
+    {
+        Destroy(gameObject);
+    }
 }
 

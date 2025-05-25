@@ -36,6 +36,7 @@ public class GuardEnemy : BasicEnemy
             PlayerScriptBase player = collision.GetComponent<PlayerScriptBase>();
             Attack(player, collision);
         }
+        Debug.Log($"Collision ended with {collision.gameObject.name}");
     }
 
     public void Attack(PlayerScriptBase player, Collider2D collision)

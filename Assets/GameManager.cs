@@ -2,6 +2,8 @@ using NavMeshPlus.Components;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,16 +22,49 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private AudioSource musicSource;
 
+    public BasicEnemy[] BasicEnemyTypes;
+    public BasicEnemy[] RageEnemyTypes;
+
+    private StrikerPlayer StrikerPlayer;
+    private DefenderPlayer DefenderPlayer;
+
+    //private bool isTooClose;
+    private float proximityWarningDuration = 3f;
+    private float proximityTimer = 0f;
+
+    [SerializeField]
+    private GameObject gameOverScreen;
+
+    public GameObject energyPickupPrefab;
+
+    public bool didLevel1variant = false;
+
+    public Slider bossBar;
+    public TextMeshProUGUI bossBarText;
+
+    [SerializeField]
+    private GameObject endScreen;
+
+    [SerializeField]
+    private Image endImage;
+
+    [SerializeField]
+    private Sprite[] endImages;
+
+    [SerializeField]
+    private string[] endTexts;
+
+    [SerializeField]
+    private TextMeshProUGUI endTextDescription;
+
+    [SerializeField]
+    private TextMeshProUGUI endTextTitle;
+
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
         }
     }
 
@@ -39,7 +74,17 @@ public class GameManager : MonoBehaviour
         SaveLoad.Instance.SaveGame();
 
         AudioListener.volume = PlayerPrefs.GetFloat("masterVolume", 100f);
-        musicSource.volume = PlayerPrefs.GetFloat("musicVolume", 100f);
+
+        StrikerPlayer = Striker.GetComponent<StrikerPlayer>();
+        DefenderPlayer = Defender.GetComponent<DefenderPlayer>();
+    }
+
+    public void DidLevel1Variant(bool setValue = false, bool value = false)
+    {
+        if(setValue == true)
+            didLevel1variant = value;
+        else
+            didLevel1variant = true;
     }
 
     public void UpdateCurrentNavMesh()
@@ -48,14 +93,67 @@ public class GameManager : MonoBehaviour
         navMeshSurface?.BuildNavMesh();
     }
 
+    public void ShowFadeOutThenEndScreen()
+    {
+        StartCoroutine(ShowFadeOutThenEndScreenIE());
+    }
+
+    private IEnumerator ShowFadeOutThenEndScreenIE()
+    {
+        StartCoroutine(RoomManager.Instance.Fade(3, 2, 1));
+        yield return new WaitForSeconds(3f);
+        Time.timeScale = 0f;
+
+        if (TotalUsedEnergy > 3500)
+        {
+            endImage.sprite = endImages[2];
+            endTextDescription.text = endTexts[2];
+            endTextTitle.text = "The End of the Line (3)";
+        }
+        else if(TotalUsedEnergy > 2000)
+        {
+            endImage.sprite = endImages[2];
+            endTextDescription.text = endTexts[1];
+            endTextTitle.text = "A Glimmer of Hope (2)";
+        }
+        else
+        {
+            endImage.sprite = endImages[0];
+            endTextDescription.text = endTexts[0];
+            endTextTitle.text = "A New Beginning (1)";
+        }
+
+        endScreen.SetActive(true);
+        musicSource.Stop();
+
+        while (true)
+        {
+            if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+                Time.timeScale = 1f;
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
     public void SetEnergy(float value)
     {
         EnergyLevel = value;
         UpdateEnergyVisual();
     }
 
+    public void YouDied(string playerName)
+    {
+        gameOverScreen.SetActive(true);
+        gameOverScreen.transform.Find("Title").GetComponent<TextMeshProUGUI>().text = $"{playerName} Died!";
+        Time.timeScale = 0f;
+    }
+
     public void Restart()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         SaveLoad.Instance.LoadGame();
     }
@@ -63,6 +161,30 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         IncreaseEnergy(Time.deltaTime * 0.001f);
+
+        if (Vector2.Distance(Striker.transform.position, Defender.transform.position) < 0.4f)
+        {
+            proximityTimer += Time.deltaTime;
+            //isTooClose = true;
+
+            if (proximityTimer >= proximityWarningDuration)
+            {
+                StrikerPlayer.TakeDamage(0.3f * Time.deltaTime);
+                DefenderPlayer.TakeDamage(0.3f * Time.deltaTime);
+                DecreaseEnergy(0.3f * Time.deltaTime);
+                // visual/audio feedback here
+            }
+            else
+            {
+                // visual/audio warning
+            }
+        }
+        else
+        {
+            proximityTimer = 0f;
+            //isTooClose = false;
+            // emove proximity warning visuals/audio
+        }
     }
 
     private void UpdateEnergyVisual()

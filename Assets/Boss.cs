@@ -1,11 +1,14 @@
-using Mono.Cecil.Cil;
 using System.Collections;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Boss : BasicEnemy
 {
+    [SerializeField]
+    private string bossName;
+
     [SerializeField]
     private float minDmg;
     [SerializeField]
@@ -29,70 +32,75 @@ public class Boss : BasicEnemy
     [SerializeField]
     private bool isRaging = false;
 
+    public int percentageOfDamageApplied = 100;
+
     [SerializeField]
     private BossState bossState = BossState.Idle;
 
-    [SerializeField]
-    private Slider healthBar;
-
     private float maxHealth;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public bool IsRaging()
     {
-        Initialize();
+        return isRaging;
+    }
+
+    public void InitializeBoss()
+    {
         maxHealth = health;
+        GameManager.Instance.bossBar.value = health / 10;
+        GameManager.Instance.bossBarText.text = bossName;
+        GameManager.Instance.bossBar.gameObject.SetActive(true);
     }
 
     public void StartBoss()
     {
         bossState = BossState.Move;
         StartCoroutine(BossLogic());
+        AudioManager.Instance.BossTime();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UpdateBoss()
     {
-        if(bossState == BossState.Move)
+        if (bossState == BossState.Move)
             SetDestination();
 
-        healthBar.value = health / 10;
+        GameManager.Instance.bossBar.value = health / 10;
     }
 
-    private void OnDestroy()
+    public void OnDestroyBoss()
     {
-        healthBar.gameObject.SetActive(false);
+        if(GameManager.Instance.bossBar != null)
+            GameManager.Instance.bossBar.gameObject.SetActive(false);
+
+        FindAnyObjectByType<Room>().UnlockDoor();
     }
 
-    IEnumerator BossLogic()
+    private IEnumerator BossLogic()
     {
         while (true)
         {
             if (bossState == BossState.Move)
             {
-                Debug.Log("MOVING!!");
                 agent.isStopped = false;
+                MoveState();
                 yield return new WaitForSeconds(Random.Range(minMove, maxMove));
                 bossState = BossState.Attack;
 
                 if (Random.Range(0, 2) == 0)
                     SwitchTarget();
-
-                Debug.Log("MOVING OVER!!");
             }
             else if (bossState == BossState.Idle)
             {
-                Debug.Log("IDLE!!");
                 agent.isStopped = true;
+                IdleState();
                 yield return new WaitForSeconds(Random.Range(minIdle, maxIdle));
                 agent.isStopped = false;
                 bossState = BossState.Move;
-                Debug.Log("IDLE OVER!!");
             }
             else if (bossState == BossState.Attack)
             {
                 agent.isStopped = true;
-                Debug.Log("ATTACKING!!");
+                AttackState();
                 yield return new WaitForSeconds(Random.Range(minAttack, maxAttack));
                 agent.isStopped = false;
 
@@ -100,13 +108,34 @@ public class Boss : BasicEnemy
                     bossState = BossState.Idle;
                 else
                     bossState = BossState.Move;
-                Debug.Log("ATTACK OVER!!");
             }
 
             if (health <= maxHealth / 3 && !isRaging)
                 Rage();
         }
     }
+
+    public override void OnDamageActions(float dmg)
+    {
+        base.OnDamageActions(dmg);
+
+        health += dmg * percentageOfDamageApplied / 100;
+    }
+
+    public new void Heal(float dmg)
+    {
+        health += dmg;
+        if (health > maxHealth)
+        {
+            health = maxHealth;
+        }
+        GameManager.Instance.bossBar.value = health / 10;
+    }
+
+    public virtual void AttackState() { }
+    public virtual void MoveState() { }
+    public virtual void IdleState() { }
+    public virtual void RageState() { }
 
     private void Rage()
     {
@@ -119,7 +148,8 @@ public class Boss : BasicEnemy
         maxDmg += maxDmg / 2;
         minIdle -= minIdle / 2;
         maxIdle -= maxIdle / 2;
-        Debug.Log("RAGING!!");
+
+        RageState();
     }
 
     public void Attack(PlayerScriptBase player, Collider2D collision)
@@ -128,7 +158,6 @@ public class Boss : BasicEnemy
         {
             player.TakeDamage(Random.Range(minDmg, maxDmg));
             StartCoroutine(AttackCooldown());
-            Debug.Log($"{gameObject.name} hit {collision.gameObject.name}");
         }
     }
 
@@ -139,18 +168,7 @@ public class Boss : BasicEnemy
         canAttack = true;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (!isRaging || bossState != BossState.Move)
-            return;
-
-        if (collision.CompareTag("Player") && gameObject.name.Contains("Boss"))
-        {
-            PlayerScriptBase player = collision.GetComponent<PlayerScriptBase>();
-            Attack(player, collision);
-        }
-    }
-    private void OnTriggerStay2D(Collider2D collision)
+    public void AttackOnTrigger(Collider2D collision)
     {
         if (!isRaging || bossState != BossState.Move)
             return;

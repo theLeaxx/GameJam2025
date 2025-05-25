@@ -1,4 +1,6 @@
 using System.Collections;
+using Unity.VisualScripting;
+using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 
@@ -22,7 +24,7 @@ public class StrikerPlayer : PlayerScriptBase
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl) && !PauseManager.Instance.isPaused)
+        if (Input.GetKeyDown(KeyCode.LeftControl) && !PauseManager.Instance.isPaused && animator.GetFloat("Vertical") != -1 && animator.GetFloat("LastDir") != 0)
         {
             isAnyCoroutineRunning = true;
             StartCoroutine(FireAbility());
@@ -34,7 +36,7 @@ public class StrikerPlayer : PlayerScriptBase
             StopCoroutine(FireAbility());
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && (Input.GetAxis(HorizontalAxis) != 0 || Input.GetAxis(VerticalAxis) != 0) && !PauseManager.Instance.isPaused)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && (Input.GetAxis(HorizontalAxis) != 0 || Input.GetAxis(VerticalAxis) != 0) && !PauseManager.Instance.isPaused && GameManager.Instance.EnergyLevel >= 15f)
         {
             StartCoroutine(DashCooldown());
         }
@@ -56,13 +58,16 @@ public class StrikerPlayer : PlayerScriptBase
     {
         canDash = false;
 
+        animator.SetBool("IsDashing", true);
         Debug.Log("Dashing!");
-        GameManager.Instance.DecreaseEnergy(15f);
+        GameManager.Instance.DecreaseEnergy(10f);
         isDashing = true;
+        yield return new WaitForSeconds(0.05f);
+        animator.SetBool("IsDashing", false);
         yield return new WaitForSeconds(0.1f);
         isDashing = false;
 
-        yield return new WaitForSeconds(1f); 
+        yield return new WaitForSeconds(1f);
 
         canDash = true;
     }
@@ -71,21 +76,36 @@ public class StrikerPlayer : PlayerScriptBase
     {
         while(isAnyCoroutineRunning)
         {
-            if (GameManager.Instance.EnergyLevel > 0)
+            canMove = false;
+            animator.SetBool("IsShooting", true);
+
+            if(animator.GetFloat("LastDir") == 2)
+                animator.SetFloat("LastDir", 3);
+
+            if (GameManager.Instance.EnergyLevel > 2.5f)
             {
-                GameManager.Instance.DecreaseEnergy(Random.Range(1.5f, 3.5f));
+                GameManager.Instance.DecreaseEnergy(Random.Range(1.5f, 2.5f));
 
                 var bullet = Instantiate(bulletPrefab, forwardPlayer.position, forwardPlayer.rotation);
-                bullet.GetComponent<Bullet>().Shoot(forwardPlayer, forwardPlayer, 10f, Random.Range(2, 10));
+                bullet.GetComponent<Bullet>().Shoot(forwardPlayer, forwardPlayer, 7f, Random.Range(2, 10));
 
                 Debug.Log("Firing ability!");
+
+                yield return new WaitForSeconds(0.1f);
             }
             else
             {
                 Debug.Log("Not enough energy to fire ability.");
+                animator.SetBool("IsShooting", false);
+                canMove = true;
+                animator.SetFloat("LastDir", 2);
                 yield break;
             }
             yield return new WaitForSeconds(0.1f);
         }
+
+        animator.SetFloat("LastDir", 2);
+        canMove = true;
+        animator.SetBool("IsShooting", false);
     }
 }

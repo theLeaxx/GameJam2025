@@ -28,27 +28,23 @@ public class DefenderPlayer : PlayerScriptBase
         SetVariables();
 
         knockbackCircleToggle = KeyCode.RightControl;
-
-#if UNITY_EDITOR
-        knockbackCircleToggle = KeyCode.Alpha1;
-#endif
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.RightShift) && !PauseManager.Instance.isPaused)
+        if (Input.GetKeyDown(KeyCode.RightShift) && GameManager.Instance.EnergyLevel >= 5f && !PauseManager.Instance.isPaused && !isAnyCoroutineRunning && canKnockback)
         {
             isAnyCoroutineRunning = true;
             StartCoroutine(ShowForceField());
         }
 
-        if (Input.GetKeyUp(KeyCode.RightShift) && !PauseManager.Instance.isPaused)
+        if ((Input.GetKeyUp(KeyCode.RightShift) || GameManager.Instance.EnergyLevel < 5f) && !PauseManager.Instance.isPaused)
         {
             HideForceField();
         }
 
-        if (Input.GetKeyDown(knockbackCircleToggle) && canKnockback && !PauseManager.Instance.isPaused)
+        if (Input.GetKeyDown(knockbackCircleToggle) && canKnockback && !PauseManager.Instance.isPaused && GameManager.Instance.EnergyLevel > 15f && !isAnyCoroutineRunning)
         {
             StartCoroutine(PushCircle());
         }
@@ -69,10 +65,12 @@ public class DefenderPlayer : PlayerScriptBase
     private IEnumerator ShowForceField()
     {
         forceField.SetActive(true);
+        animator.SetBool("ForceField", true);
+        animator.SetBool("ForceFieldLastFrame", true);
 
         while (isAnyCoroutineRunning)
         {
-            GameManager.Instance.DecreaseEnergy(6.5f);
+            GameManager.Instance.DecreaseEnergy(5f);
 
             Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 2.3f);
 
@@ -90,15 +88,15 @@ public class DefenderPlayer : PlayerScriptBase
                 }
             }
 
-
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(Random.Range(0.3f, 1f));
         }
     }
 
     private IEnumerator PushCircle()
     {
+        animator.SetBool("Explosion", true);
         canKnockback = false;
-        GameManager.Instance.DecreaseEnergy(20f);
+        GameManager.Instance.DecreaseEnergy(10f);
 
         knockbackCircle.SetActive(true);
         List<NavMeshAgent> list = new List<NavMeshAgent>();
@@ -110,15 +108,14 @@ public class DefenderPlayer : PlayerScriptBase
         {
             Tilemap tilemap = collider.GetComponent<Tilemap>();
 
-            if (!collider.gameObject.CompareTag("Player"))
+            if (!collider.gameObject.CompareTag("Player") || collider.gameObject.name == "Striker")
             {
                 Rigidbody2D rb = collider.GetComponent<Rigidbody2D>();
                 if (rb != null)
                 {
                     Vector2 direction = (collider.transform.position - transform.position).normalized;
                     rb.AddForce(direction * 5f, ForceMode2D.Impulse);
-                    var agent = collider.GetComponent<NavMeshAgent>();
-                    if (agent != null)
+                    if (collider.TryGetComponent<NavMeshAgent>(out var agent))
                     {
                         agent.enabled = false;
                         list.Add(agent);
@@ -163,12 +160,16 @@ public class DefenderPlayer : PlayerScriptBase
         yield return new WaitForSeconds(0.5f);
 
         foreach (var agent in list)
-            agent.enabled = true;
+        {
+            if(agent != null)
+                agent.enabled = true;
+        }
 
+        animator.SetBool("Explosion", false);
         knockbackCircle.SetActive(false);
 
         yield return new WaitForSeconds(3f);
-        canKnockback = true;
+        canKnockback = true;    
     }
 
     private void HideForceField()
@@ -176,5 +177,6 @@ public class DefenderPlayer : PlayerScriptBase
         isAnyCoroutineRunning = false;
         StopCoroutine(ShowForceField());
         forceField.SetActive(false);
+        animator.SetBool("ForceField", false);
     }
 }

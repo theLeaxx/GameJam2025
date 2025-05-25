@@ -12,6 +12,9 @@ public class RoomManager : MonoBehaviour
     [SerializeField]
     private RoomDictionary[] roomDictionary;
 
+    [SerializeField]
+    private GameObject fade;
+
     private List<Room> spawnedRooms = new List<Room>();
 
     public string currentRoomID;
@@ -22,11 +25,6 @@ public class RoomManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
         }
     }
 
@@ -44,6 +42,18 @@ public class RoomManager : MonoBehaviour
 #if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Alpha2))
             ResetPlayersPositions();
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+            FindAnyObjectByType<Room>().SpawnEnergyPickup();
+
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+            StartCoroutine(Fade(1f, 0.5f, 1f));
+
+        if (Input.GetKeyDown(KeyCode.F3))
+            TransitionToNextRoom("3A");
+
+        if (Input.GetKeyDown(KeyCode.F12))
+            TransitionToNextRoom("Boss1");
 #endif
     }
 
@@ -87,22 +97,52 @@ public class RoomManager : MonoBehaviour
         }
     }
 
-    public void TransitionToNextRoom(string roomID)
+    public void TransitionToNextRoom(string roomID, bool _loadingData = false)
     {
         if (roomID == currentRoomID)
             return;
 
-        StartCoroutine(TransitionToNextRoomCoroutine(roomID));
+        StartCoroutine(TransitionToNextRoomCoroutine(roomID, loadingData: _loadingData));
     }
 
-    private bool Fade(float timeToFade, float fadeAmount, float timeToFadeOut)
+    public IEnumerator Fade(float timeToFade, float fadeAmount, float timeToFadeOut)
     {
-        return true;
+        Debug.Log("Fading in and out");
+        fade.SetActive(true);
+        var fadeImage = fade.GetComponent<UnityEngine.UI.Image>();
+
+        fadeImage.color = Color.clear;
+        float timer = 0f;
+        while (timer < timeToFade)
+        {
+            timer += Time.deltaTime;
+            fadeImage.color = Color.Lerp(Color.clear, Color.black, timer / timeToFade);
+            yield return null;
+        }
+
+        fadeImage.color = Color.black;
+
+        yield return new WaitForSeconds(fadeAmount);
+
+        timer = 0f;
+        while (timer < timeToFadeOut)
+        {
+            timer += Time.deltaTime;
+            fadeImage.color = Color.Lerp(Color.black, Color.clear, timer / timeToFadeOut);
+            yield return null;
+        }
+
+        fadeImage.color = Color.clear;
+        fade.SetActive(false);
     }
 
-    private IEnumerator TransitionToNextRoomCoroutine(string roomID, string last = "")
+    private IEnumerator TransitionToNextRoomCoroutine(string roomID, string last = "", bool loadingData = false)
     {
-        Fade(1f, 0.5f, 1f);
+        if(loadingData)
+            StartCoroutine(Fade(0f, 1.5f, 1f));
+        else
+            StartCoroutine(Fade(1f, 0.5f, 1f));
+
         yield return new WaitForSeconds(1f);
 
         LoadRoom(roomID);

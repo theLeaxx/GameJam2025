@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class Door : MonoBehaviour
 {
@@ -19,11 +20,15 @@ public class Door : MonoBehaviour
     {
         if(isEntranceDoor)
             doorCounterText?.gameObject.SetActive(false);
+
+        if (canUseDoor)
+            Unlock();
     }
 
     public void UpdateCounter(int total, int left)
     {
-        doorCounterText.text = $"{left}/{total}";
+        if(doorCounterText != null)
+            doorCounterText.text = $"{left}/{total}";
 
         if (left <= 0)
             Unlock();
@@ -32,7 +37,19 @@ public class Door : MonoBehaviour
     public void Unlock()
     {
         canUseDoor = true;
-        doorCounterText.gameObject.SetActive(false);
+        doorCounterText?.gameObject.SetActive(false);
+        transform.Find("Counter/lock_0")?.gameObject.SetActive(false);
+
+        GetComponent<Light2D>().enabled = true;
+    }
+
+    public void Lock()
+    {
+        canUseDoor = false;
+        doorCounterText?.gameObject.SetActive(true);
+        transform.Find("Counter/lock_0").gameObject.SetActive(true);
+
+        GetComponent<Light2D>().enabled = true;
     }
 
     public void OnTriggerEnter2D(Collider2D collision)
@@ -44,7 +61,12 @@ public class Door : MonoBehaviour
             defenderInDoor = true;
 
         if (strikerInDoor && defenderInDoor && canUseDoor && !isEntranceDoor)
+        {
+            if(FindAnyObjectByType<Room>().roomID.Contains("1") && !GameManager.Instance.didLevel1variant)
+                GameManager.Instance.DidLevel1Variant(true, true);
+
             RoomManager.Instance.TransitionToNextRoom(nextRoomID);
+        }
     }
 
     public void OnTriggerExit2D(Collider2D collision)
