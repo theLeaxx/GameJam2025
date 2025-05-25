@@ -105,6 +105,8 @@ public class BasicEnemy : MonoBehaviour
         DieActions();
 
         Destroy(gameObject);
+        Destroy(gameObject);
+        Destroy(gameObject);
     }
 
     public GameObject CloserTarget()

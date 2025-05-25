@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      open_the_knoor_0: 5850696351036677818
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
